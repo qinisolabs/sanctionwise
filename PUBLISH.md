@@ -53,17 +53,20 @@ git log --format='%an <%ae>' -1
 Check `git status` before committing: `data/sanctions.json` and `UK-Sanctions-List.csv` must
 NOT be staged (git-ignored); `data/sanctions.sample.json` SHOULD be.
 
-## 4. Auto-refresh secret (one-time)
+## 4. Seed the data Release (run the Action once)
 
-For the weekly Action to auto-publish fresh data, add a repo secret **`NPM_TOKEN`** = an npm
-**Automation** access token (npmjs.com → Access Tokens → Generate New Token → Automation):
+The weekly Action publishes the data to a GitHub **Release** (tag `data`) that the installed
+tool auto-fetches on startup. It needs **no secrets** (just the built-in token). Create the
+first Release:
 
 ```
-gh secret set NPM_TOKEN
+gh workflow run "Refresh UK Sanctions List"
+gh run watch
+gh release view data
 ```
 
-Then trigger a first run to confirm it works: `gh workflow run "Refresh UK Sanctions List"`.
-(Without the token the data still rebuilds; only the publish step fails.)
+When it shows `sanctions.json.gz`, the tool will self-refresh from it (cached locally) — no npm
+token, no manual step. It re-runs every Monday.
 
 ## 5. MCP Registry
 

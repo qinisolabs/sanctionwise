@@ -35,7 +35,7 @@ export const TOOLS: ToolSpec[] = [
   },
 ];
 
-export const SERVER_INFO = { name: "sanctionwise", version: "0.1.0" } as const;
+export const SERVER_INFO = { name: "sanctionwise", version: "0.1.1" } as const;
 export const PUBLIC_BASE = "https://qinisolabs.github.io/sanctionwise";
 const DEFAULT_PROTOCOL = "2025-06-18";
 

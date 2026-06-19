@@ -1,4 +1,4 @@
-import { SANCTIONS_DATA, SANCTIONS_KIND } from "./data.generated.js";
+import { getDataJson, type DataSource } from "./datasource.js";
 
 export interface SanctionTarget {
   id: string;
@@ -39,10 +39,13 @@ export function normalizeName(s: string): string {
 
 let DATA: Parsed | null = null;
 let NAME_INDEX: { nl: string; ti: number; name: string }[] | null = null;
+let SOURCE: DataSource = "bundled";
 
 function load(): { data: Parsed; index: { nl: string; ti: number; name: string }[] } {
   if (DATA && NAME_INDEX) return { data: DATA, index: NAME_INDEX };
-  DATA = JSON.parse(SANCTIONS_DATA) as Parsed;
+  const { json, source } = getDataJson();
+  SOURCE = source;
+  DATA = JSON.parse(json) as Parsed;
   NAME_INDEX = [];
   DATA.targets.forEach((t, ti) => {
     for (const name of t.names) NAME_INDEX!.push({ nl: normalizeName(name), ti, name });
@@ -50,9 +53,13 @@ function load(): { data: Parsed; index: { nl: string; ti: number; name: string }
   return { data: DATA, index: NAME_INDEX };
 }
 
-export function datasetInfo(): { kind: "sample" | "official"; version: string; count: number } {
+function currentKind(): "sample" | "official" {
+  return SOURCE === "sample" ? "sample" : "official";
+}
+
+export function datasetInfo(): { kind: "sample" | "official"; source: DataSource; version: string; count: number } {
   const { data } = load();
-  return { kind: SANCTIONS_KIND, version: data.version, count: data.count };
+  return { kind: currentKind(), source: SOURCE, version: data.version, count: data.count };
 }
 
 function scoreName(nameLower: string, q: string): number {
@@ -113,12 +120,12 @@ export function screenName(query: string, limit = 10): ScreenResult {
     results: [],
     truncated: false,
     coverage: "United Kingdom (FCDO UK Sanctions List)",
-    dataset: SANCTIONS_KIND,
+    dataset: currentKind(),
     datasetVersion: data.version,
     disclaimer: DISCLAIMER,
     attribution: ATTRIBUTION,
   };
-  if (SANCTIONS_KIND === "sample") {
+  if (currentKind() === "sample") {
     base.note =
       "SAMPLE DATA — not the real UK Sanctions List. Results are NOT authoritative. Load the official data with scripts/build-data.mjs before relying on this.";
   }
@@ -180,7 +187,7 @@ export function getSanctionsEntry(id: string): EntryResult {
     id: wanted,
     found: !!target,
     target,
-    dataset: SANCTIONS_KIND,
+    dataset: currentKind(),
     datasetVersion: data.version,
     disclaimer: DISCLAIMER,
     attribution: ATTRIBUTION,

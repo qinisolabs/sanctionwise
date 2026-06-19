@@ -14,6 +14,7 @@ function check(name: string, fn: () => void) {
   }
 }
 
+process.env.SANCTIONWISE_NO_CACHE = "1"; // deterministic: use bundled data, no network refresh
 const KIND = datasetInfo().kind;
 
 /* ---------- normalisation (deterministic) ---------- */

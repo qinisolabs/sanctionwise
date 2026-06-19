@@ -19,7 +19,7 @@
 LLMs can't recall who is currently sanctioned (it changes constantly, ~6,200 entries, dozens of regimes). sanctionwise returns the official FCDO designation by lookup, or an honest no-match.
 
 ## Data
-Official FCDO UK Sanctions List (designated persons/entities/ships under the Sanctions and Anti-Money Laundering Act 2018), Open Government Licence v3.0, © Crown copyright. Parsed into one record per target (names/aliases grouped) and BUNDLED in the package; a weekly GitHub Action republishes when the list changes. Every response reports the dataset's report date.
+Official FCDO UK Sanctions List (designated persons/entities/ships under the Sanctions and Anti-Money Laundering Act 2018), Open Government Licence v3.0, © Crown copyright. Parsed into one record per target (names/aliases grouped) and BUNDLED in the package (offline fallback); the tool also auto-refreshes from a weekly-updated GitHub Release on startup (cached locally, no token, no manual step). Every response reports the dataset's report date.
 
 ## Install
 - Local MCP: npx -y sanctionwise   (data bundled; no key)

@@ -28,7 +28,7 @@ Ask an LLM "is this person on the UK sanctions list?" and it will answer from st
 { "mcpServers": { "sanctionwise": { "command": "npx", "args": ["-y", "sanctionwise"] } } }
 ```
 
-The official UK Sanctions List data is **bundled** in the package (no key, no setup). A GitHub Action republishes it whenever the list changes, so reinstalling/`npx` pulls fresh data; every response reports the dataset's report date.
+The official UK Sanctions List data is **bundled** in the package (works offline, out of the box). The tool also **auto-refreshes** from a weekly-updated GitHub Release on startup — cached locally, no key, no token, no manual step — so it stays current on its own. Every response reports the dataset's report date.
 
 ## Use it as a library
 
@@ -60,7 +60,7 @@ Matching folds accents and is case/punctuation-insensitive, and screens primary 
 
 ## Data & auto-refresh
 
-The data is the official **FCDO UK Sanctions List** (designated persons, entities and ships under the Sanctions and Anti-Money Laundering Act 2018), published under the **Open Government Licence v3.0**. `scripts/build-data.mjs` parses the official CSV into one record per target (all names/aliases grouped); the bundled build currently carries **6,200+ designated targets**. A weekly GitHub Action (`.github/workflows/refresh-data.yml`) re-downloads the list and, **only if it changed**, publishes a fresh patch release.
+The data is the official **FCDO UK Sanctions List** (designated persons, entities and ships under the Sanctions and Anti-Money Laundering Act 2018), published under the **Open Government Licence v3.0**. `scripts/build-data.mjs` parses the official CSV into one record per target (all names/aliases grouped); the bundled build currently carries **6,200+ designated targets**. A weekly GitHub Action (`.github/workflows/refresh-data.yml`) re-downloads the list and publishes it as a **GitHub Release** asset; the installed tool fetches that asset on startup (cached, offline-safe), so it self-updates with **no npm token and no manual step**. The bundled copy is the offline / first-run fallback.
 
 ## What it is *not*
 
