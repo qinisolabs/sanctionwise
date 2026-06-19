@@ -1,0 +1,37 @@
+name: Deploy hosted Worker
+
+# Weekly redeploy of the hosted edge endpoint so it re-inlines the latest official
+# FCDO UK Sanctions List. wrangler.toml's [build] step downloads + rebuilds the data
+# at deploy time, so a deploy == a data refresh for the hosted endpoint.
+#
+# Runs Mondays 08:00 UTC (one hour after the data-Release refresh) and on demand.
+#
+# ONE-TIME SETUP (Chris): add a repo secret CLOUDFLARE_API_TOKEN
+#   - Cloudflare dashboard -> My Profile -> API Tokens -> Create Token
+#     -> "Edit Cloudflare Workers" template (Account: your account; Zone: not needed).
+#   - GitHub repo -> Settings -> Secrets and variables -> Actions -> New repository secret
+#     -> name CLOUDFLARE_API_TOKEN, value = the token.
+# If the deploy reports it can't pick an account, also add a CLOUDFLARE_ACCOUNT_ID secret
+# and pass it via the accountId input below.
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Deploy to Cloudflare Workers (rebuilds + inlines fresh FCDO data)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

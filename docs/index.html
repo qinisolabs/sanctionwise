@@ -6,6 +6,10 @@
 <title>sanctionwise — verified UK sanctions screening for AI agents</title>
 <meta name="description" content="sanctionwise screens names against the official FCDO UK Sanctions List for AI agents — possible matches with official designation details, or a clean no-match. Indicative screening, not advice. MCP server + TypeScript library by Qiniso." />
 <link rel="icon" href="logo.svg" type="image/svg+xml" />
+<meta property="og:image" content="https://qinisolabs.github.io/sanctionwise/logo.svg" />
+<meta name="twitter:image" content="https://qinisolabs.github.io/sanctionwise/logo.svg" />
+<meta name="twitter:card" content="summary" />
+<meta property="og:type" content="website" />
 <style>
   :root { --emerald:#10b981; --emerald-dark:#047857; --ink:#0b1220; --muted:#5b6472; --bg:#fff; --card:#f6f8f7; --line:#e3e8e5; --warn:#b45309; }
   * { box-sizing:border-box; }
@@ -66,12 +70,16 @@
 
   <section id="add">
     <h2>Add it to Claude</h2>
-    <p>Runs locally over stdio — no key, no login. The official data is bundled (works offline) and the tool auto-refreshes from a weekly GitHub Release — no token, no manual step. Add this under <code>mcpServers</code> and restart:</p>
+    <p>Settings → Connectors → <strong>Add custom connector</strong>, and paste the URL. Hosted on the edge, no login, no key:</p>
+    <pre>https://sanctionwise.qinisolabs.workers.dev/mcp</pre>
+    <h2 style="margin-top:30px">Or run it locally</h2>
+    <p>Prefer to run it yourself over stdio? The official data is bundled (works offline) and the tool auto-refreshes from a weekly GitHub Release — no token, no manual step. Add this under <code>mcpServers</code> and restart:</p>
     <pre>{
   "mcpServers": {
     "sanctionwise": { "command": "npx", "args": ["-y", "sanctionwise"] }
   }
 }</pre>
+    <p class="note">Using <code>asdf</code> or <code>nvm</code>? The desktop app may not see <code>npx</code> on its PATH — replace <code>"npx"</code> with the full path from <code>which npx</code>.</p>
   </section>
 
   <section>

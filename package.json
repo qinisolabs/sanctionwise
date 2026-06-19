@@ -32,7 +32,8 @@
     "build": "npm run gen && tsc",
     "start": "node dist/server.js",
     "test": "npm run gen && tsx test/parity.test.ts",
-    "build-data": "node scripts/build-data.mjs"
+    "build-data": "node scripts/build-data.mjs",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

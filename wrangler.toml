@@ -1,0 +1,21 @@
+# Cloudflare Worker deploy config for the hosted (edge) endpoint.
+# Requires wrangler: `npm i -g wrangler` (or use `npx wrangler`). Deploy: `wrangler deploy`.
+# Free tier: 100k requests/day. wrangler bundles the TS entry (esbuild) and inlines the
+# generated UK Sanctions List dataset, so no node:fs is needed at the edge.
+name = "sanctionwise"
+main = "src/worker.ts"
+compatibility_date = "2025-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Force the bundled official dataset at the edge (no filesystem cache / background fetch).
+# Belt-and-suspenders with the same flag set at the top of src/worker.ts.
+[vars]
+SANCTIONWISE_NO_CACHE = "1"
+
+# Before bundling, download the latest official FCDO UK Sanctions List and inline it
+# (same source + build step as the weekly refresh workflow). A deploy therefore ships
+# fresh data; re-deploy (or the optional scheduled deploy) to refresh the edge copy.
+[build]
+command = "curl -fSL --retry 3 https://sanctionslist.fcdo.gov.uk/docs/UK-Sanctions-List.csv -o UK-Sanctions-List.csv && node scripts/build-data.mjs UK-Sanctions-List.csv data/sanctions.json && node scripts/gen-data.mjs"
+
+# After deploy the endpoint is:  https://sanctionwise.qinisolabs.workers.dev/mcp
