@@ -1,0 +1,47 @@
+{
+  "_comment": "ILLUSTRATIVE SAMPLE — NOT the real UK Sanctions List. Synthetic entries with fictional names so the tool runs and tests pass out of the box; every result is tagged dataset:'sample' and is NOT authoritative. Replace with the real data via: node scripts/build-data.mjs <UK-Sanctions-List.csv>. Source when loaded: official FCDO UK Sanctions List (Crown copyright, Open Government Licence v3.0).",
+  "version": "sample",
+  "generatedAt": "sample",
+  "count": 3,
+  "targets": [
+    {
+      "id": "SAMPLE0001",
+      "type": "Individual",
+      "primaryName": "EXAMPLE SANCTIONED PERSON ONE",
+      "names": ["EXAMPLE SANCTIONED PERSON ONE", "Sample Person Alias", "E. S. P. ONE"],
+      "regimes": ["Sample (Illustrative) Regulations"],
+      "sanctions": "Asset freeze",
+      "dob": ["01/01/1970"],
+      "nationality": ["Sampleland"],
+      "dateDesignated": "01/01/2020",
+      "lastUpdated": "01/01/2020",
+      "reasons": "Illustrative sample entry only — not a real designation."
+    },
+    {
+      "id": "SAMPLE0002",
+      "type": "Entity",
+      "primaryName": "EXAMPLE SANCTIONED COMPANY LTD",
+      "names": ["EXAMPLE SANCTIONED COMPANY LTD", "Sample Holdings"],
+      "regimes": ["Sample (Illustrative) Regulations"],
+      "sanctions": "Asset freeze",
+      "dob": [],
+      "nationality": [],
+      "dateDesignated": "01/01/2021",
+      "lastUpdated": "01/01/2021",
+      "reasons": "Illustrative sample entry only — not a real designation."
+    },
+    {
+      "id": "SAMPLE0003",
+      "type": "Ship",
+      "primaryName": "EXAMPLE SAMPLE VESSEL",
+      "names": ["EXAMPLE SAMPLE VESSEL"],
+      "regimes": ["Sample (Illustrative) Regulations"],
+      "sanctions": "Transport restriction",
+      "dob": [],
+      "nationality": [],
+      "dateDesignated": "01/01/2022",
+      "lastUpdated": "01/01/2022",
+      "reasons": "Illustrative sample entry only — not a real designation."
+    }
+  ]
+}

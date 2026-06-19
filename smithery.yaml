@@ -1,0 +1,13 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+# sanctionwise is a local stdio MCP server published to npm; Smithery launches it via npx.
+# The official UK Sanctions List data is bundled in the published package (refreshed by CI).
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required: []
+    properties: {}
+  commandFunction:
+    |-
+    (config) => ({ command: 'npx', args: ['-y', 'sanctionwise'] })

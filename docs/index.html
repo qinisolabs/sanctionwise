@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>sanctionwise — verified UK sanctions screening for AI agents</title>
+<meta name="description" content="sanctionwise screens names against the official FCDO UK Sanctions List for AI agents — possible matches with official designation details, or a clean no-match. Indicative screening, not advice. MCP server + TypeScript library by Qiniso." />
+<link rel="icon" href="logo.svg" type="image/svg+xml" />
+<style>
+  :root { --emerald:#10b981; --emerald-dark:#047857; --ink:#0b1220; --muted:#5b6472; --bg:#fff; --card:#f6f8f7; --line:#e3e8e5; --warn:#b45309; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); background:var(--bg); }
+  .wrap { max-width:860px; margin:0 auto; padding:0 24px; }
+  header { padding:72px 0 40px; text-align:center; }
+  .logo { width:84px; height:84px; }
+  h1 { font-size:2.6rem; margin:18px 0 6px; letter-spacing:-0.02em; }
+  .tag { font-size:1.18rem; color:var(--emerald-dark); font-weight:600; margin:0 0 14px; }
+  .lede { font-size:1.12rem; color:var(--muted); max-width:650px; margin:0 auto 26px; }
+  .cta { display:inline-flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .btn { display:inline-block; padding:11px 20px; border-radius:10px; font-weight:600; text-decoration:none; }
+  .btn-primary { background:linear-gradient(135deg,var(--emerald),var(--emerald-dark)); color:#fff; }
+  .btn-ghost { border:1px solid var(--line); color:var(--ink); }
+  section { padding:36px 0; border-top:1px solid var(--line); }
+  h2 { font-size:1.5rem; letter-spacing:-0.01em; }
+  .warn { background:#fffbeb; border:1px solid #fde68a; border-radius:12px; padding:16px 20px; margin:18px 0; }
+  .warn b { color:var(--warn); }
+  code,pre { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  pre { background:var(--ink); color:#e6edf3; padding:16px 18px; border-radius:10px; overflow-x:auto; font-size:0.9rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin-top:16px; }
+  .mod { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+  .mod h3 { margin:0 0 4px; font-size:1.02rem; }
+  .mod p { margin:0; color:var(--muted); font-size:0.92rem; }
+  footer { color:var(--muted); font-size:0.9rem; text-align:center; padding:40px 0 64px; border-top:1px solid var(--line); }
+  a { color:var(--emerald-dark); }
+  .note { color:var(--muted); font-size:0.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img class="logo" src="logo.svg" alt="Qiniso" />
+    <h1>sanctionwise</h1>
+    <p class="tag">Verified UK sanctions screening for AI agents.</p>
+    <p class="lede">Ask an LLM whether someone is sanctioned and it answers from stale, fuzzy memory. Designations change constantly — that's data, not recall. sanctionwise screens a name against the official FCDO UK Sanctions List and returns possible matches with their real designation details, or a clean "no match". <em>"Qiniso" means "truth" in Zulu.</em></p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#add">Add to Claude</a>
+      <a class="btn btn-ghost" href="https://github.com/qinisolabs/sanctionwise">GitHub</a>
+    </div>
+  </header>
+
+  <section>
+    <div class="warn">
+      <p style="margin:0"><b>Read this.</b> sanctionwise is an <b>indicative name-match screen</b>, not a determination. A match is a <b>POSSIBLE</b> match a human must verify against the official entry — not confirmation. A <b>"no match" is NOT a clearance</b> (UK FCDO list only, name-string only, as of the dataset's report date). It is <b>not legal, compliance or KYC/AML advice</b> and not a substitute for a regulated screening process.</p>
+    </div>
+    <h2>Why it exists</h2>
+    <p>Whether a specific person, company or vessel is currently designated under UK sanctions is exact, fast-changing reference data spread across ~6,200 entries and dozens of regimes — exactly what a language model cannot recall. Asked anyway, it guesses, with serious consequences either way (a missed match, or a false accusation). sanctionwise returns the official FCDO designation by lookup, or an honest "no match", with the disclaimer attached every time.</p>
+  </section>
+
+  <section>
+    <h2>Tools</h2>
+    <div class="grid">
+      <div class="mod"><h3>screen_name</h3><p>Screen a person/company/vessel name → ranked possible matches with the official regime, sanctions imposed and statement-of-reasons snippet. Accent- and case-insensitive; screens aliases too.</p></div>
+      <div class="mod"><h3>get_sanctions_entry</h3><p>The full official entry for a Unique ID — all names/aliases, regime, designation date, nationality/DOB, statement of reasons.</p></div>
+    </div>
+  </section>
+
+  <section id="add">
+    <h2>Add it to Claude</h2>
+    <p>Runs locally over stdio — no key, no login. The official data is bundled (and refreshed weekly by CI). Add this under <code>mcpServers</code> and restart:</p>
+    <pre>{
+  "mcpServers": {
+    "sanctionwise": { "command": "npx", "args": ["-y", "sanctionwise"] }
+  }
+}</pre>
+  </section>
+
+  <section>
+    <h2>What it is <em>not</em></h2>
+    <p class="note">sanctionwise screens against the official FCDO UK Sanctions List only. It is <strong>not</strong> a compliance determination, <strong>not</strong> multi-list (no EU/US-OFAC/UN), <strong>not</strong> real-time (reflects the dataset's report date), and <strong>not</strong> legal/compliance/KYC-AML advice or a regulated screening service. A match needs human verification; a non-match is not a clearance.</p>
+  </section>
+</div>
+
+<footer>
+  sanctionwise — verified, trustworthy data tools for AI agents.<br />
+  Contains public sector information from the FCDO UK Sanctions List, licensed under the Open Government Licence v3.0. © Crown copyright.<br />
+  Open source · <a href="https://github.com/qinisolabs/sanctionwise">github.com/qinisolabs/sanctionwise</a> ·
+  <a href="https://www.npmjs.com/package/sanctionwise">npm</a> ·
+  <a href="https://github.com/qinisolabs">Qiniso</a>
+</footer>
+</body>
+</html>

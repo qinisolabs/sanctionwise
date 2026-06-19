@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.tgz
+.env
+.DS_Store
+src/data.generated.ts
+data/sanctions.json
+UK-Sanctions-List.csv

@@ -1,0 +1,66 @@
+name: Refresh UK Sanctions List
+
+# Downloads the official FCDO UK Sanctions List, rebuilds the bundled data, and — only if
+# the list actually changed — publishes a new patch release to npm (so installs get fresh
+# data). The data is BUNDLED in the package, so this needs an npm automation token.
+#
+# ONE-TIME SETUP: add a repo secret NPM_TOKEN = an npm "Automation" access token
+# (npmjs.com → Access Tokens → Generate → Automation). It bypasses 2FA for CI publishing.
+# No token? The rebuild still runs; the publish step just fails and you can publish manually.
+
+on:
+  schedule:
+    - cron: "0 7 * * 1" # Mondays 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+      - run: npm ci
+
+      - name: Download the official UK Sanctions List CSV
+        run: |
+          curl -fSL --retry 3 "https://sanctionslist.fcdo.gov.uk/docs/UK-Sanctions-List.csv" -o UK-Sanctions-List.csv
+          ls -la UK-Sanctions-List.csv
+
+      - name: Rebuild bundled data
+        run: |
+          node scripts/build-data.mjs UK-Sanctions-List.csv data/sanctions.json
+          node -e "const d=require('./data/sanctions.json');if(d.count<1000){console.error('too few targets:',d.count);process.exit(1)}console.log('targets',d.count,'report',d.version)"
+
+      - name: Detect change
+        id: change
+        run: |
+          NEW=$(sha256sum data/sanctions.json | cut -d' ' -f1)
+          OLD=$(cat data/.datahash 2>/dev/null || echo none)
+          echo "new=$NEW" >> "$GITHUB_OUTPUT"
+          if [ "$NEW" = "$OLD" ]; then echo "changed=false" >> "$GITHUB_OUTPUT"; echo "No change in the sanctions list — nothing to publish."; else echo "changed=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Build, test, publish (only if changed)
+        if: steps.change.outputs.changed == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm version patch --no-git-tag-version
+          npm run build
+          npm test
+          npm publish --access public
+          echo "${{ steps.change.outputs.new }}" > data/.datahash
+
+      - name: Commit version bump + data hash
+        if: steps.change.outputs.changed == 'true'
+        run: |
+          git config user.name "Qiniso"
+          git config user.email "qinisolabs@gmail.com"
+          git add package.json data/.datahash
+          git commit -m "data: refresh UK Sanctions List + publish"
+          git push

@@ -1,0 +1,18 @@
+sanctionwise
+Copyright 2026 Qiniso
+
+This product uses data from the UK Sanctions List.
+
+- The UK Sanctions List is published by the Foreign, Commonwealth & Development Office
+  (FCDO) under the Sanctions and Anti-Money Laundering Act 2018, and is available as open
+  data under the Open Government Licence v3.0. Contains public sector information licensed
+  under the Open Government Licence v3.0. © Crown copyright.
+  Source: https://www.gov.uk/government/publications/the-uk-sanctions-list
+- The data bundled in a published build is generated from the official FCDO UK Sanctions
+  List CSV via scripts/build-data.mjs; the version present in a fresh source checkout is a
+  small synthetic ILLUSTRATIVE sample, not real designations.
+
+sanctionwise performs INDICATIVE name-match screening against the UK (FCDO) list only. A
+match is a POSSIBLE match that requires human verification against the official entry; a
+non-match is NOT a clearance. It is not legal, compliance, KYC/AML or sanctions advice, and
+is not a substitute for a regulated sanctions-screening process.

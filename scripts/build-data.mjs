@@ -1,0 +1,167 @@
+// Build data/sanctions.json from the official FCDO "UK Sanctions List" CSV.
+//
+// Download UK-Sanctions-List.csv from https://sanctionslist.fcdo.gov.uk/docs/UK-Sanctions-List.csv
+// (Crown copyright, Open Government Licence). Line 1 is "Report Date: DD-Mon-YYYY"; line 2 is the
+// header; each subsequent row is one name/alias permutation, grouped by "Unique ID" (or OFSI Group
+// ID). This collapses the ~57k rows into one record per designated target, with all names/aliases.
+//
+// Usage: node scripts/build-data.mjs <UK-Sanctions-List.csv> [out.json]
+import { createReadStream, writeFileSync } from "node:fs";
+import { createInterface } from "node:readline";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const [, , file, outArg] = process.argv;
+if (!file) {
+  console.error("Usage: node scripts/build-data.mjs <UK-Sanctions-List.csv> [out.json]");
+  process.exit(1);
+}
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const outPath = outArg || join(root, "data/sanctions.json");
+
+function parseCsvLine(line) {
+  const out = [];
+  let cur = "";
+  let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQ) {
+      if (ch === '"') {
+        if (line[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else inQ = false;
+      } else cur += ch;
+    } else if (ch === '"' && cur === "") inQ = true;
+    else if (ch === ",") {
+      out.push(cur);
+      cur = "";
+    } else cur += ch;
+  }
+  out.push(cur);
+  return out;
+}
+const clean = (s) => (s || "").replace(/\s+/g, " ").trim();
+
+const rl = createInterface({ input: createReadStream(file, "utf8"), crlfDelay: Infinity });
+let version = "unknown";
+let idx = null;
+let pending = "";
+let lineNo = 0;
+const targets = new Map();
+
+function processRecord(line) {
+  lineNo++;
+  if (lineNo === 1) {
+    const m = line.match(/Report Date:\s*(.+?)\s*$/i);
+    if (m) version = m[1].trim();
+    return;
+  }
+  const cells = parseCsvLine(line);
+  if (!idx) {
+    const find = (n) => cells.findIndex((c) => c.replace(/^"|"$/g, "").trim() === n);
+    idx = {
+      lastUpdated: find("Last Updated"),
+      uid: find("Unique ID"),
+      gid: find("OFSI Group ID"),
+      n6: find("Name 6"),
+      n1: find("Name 1"),
+      n2: find("Name 2"),
+      n3: find("Name 3"),
+      n4: find("Name 4"),
+      n5: find("Name 5"),
+      ntype: find("Name type"),
+      regime: find("Regime Name"),
+      dtype: find("Designation Type"),
+      sanctions: find("Sanctions Imposed"),
+      other: find("Other Information"),
+      reasons: find("UK Statement of Reasons"),
+      designated: find("Date Designated"),
+      dob: find("D.O.B"),
+      nat: find("Nationality(/ies)"),
+    };
+    if (idx.uid === -1 || idx.n6 === -1) {
+      console.error("Could not find 'Unique ID' / 'Name 6' columns — is this the UK Sanctions List CSV?");
+      process.exit(1);
+    }
+    return;
+  }
+  const id = clean(cells[idx.uid]) || clean(cells[idx.gid]);
+  if (!id) return;
+  const fullName = [idx.n1, idx.n2, idx.n3, idx.n4, idx.n5, idx.n6]
+    .map((i) => clean(cells[i]))
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  let t = targets.get(id);
+  if (!t) {
+    t = {
+      id,
+      type: clean(cells[idx.dtype]),
+      names: [],
+      primaryName: "",
+      regimes: new Set(),
+      dob: new Set(),
+      nationality: new Set(),
+      sanctions: clean(cells[idx.sanctions]),
+      dateDesignated: clean(cells[idx.designated]),
+      lastUpdated: clean(cells[idx.lastUpdated]),
+      reasons: "",
+      _seen: new Set(),
+    };
+    targets.set(id, t);
+  }
+  const ntype = clean(cells[idx.ntype]);
+  const isPrimary = /^primary name$/i.test(ntype);
+  if (fullName && !t._seen.has(fullName.toLowerCase())) {
+    t._seen.add(fullName.toLowerCase());
+    t.names.push(fullName);
+    if (isPrimary && !t.primaryName) t.primaryName = fullName;
+  }
+  const reg = clean(cells[idx.regime]);
+  if (reg) t.regimes.add(reg);
+  const d = clean(cells[idx.dob]);
+  if (d) t.dob.add(d);
+  const na = clean(cells[idx.nat]);
+  if (na) t.nationality.add(na);
+  // Capture the fullest statement of reasons / other info (from the primary row where possible).
+  const reasons = clean(cells[idx.reasons]) || clean(cells[idx.other]);
+  if (reasons && (isPrimary || reasons.length > t.reasons.length)) t.reasons = reasons;
+}
+
+rl.on("line", (raw) => {
+  pending = pending ? pending + "\n" + raw : raw;
+  let q = 0;
+  for (let i = 0; i < pending.length; i++) if (pending[i] === '"') q++;
+  if (q % 2 !== 0) return;
+  const line = pending;
+  pending = "";
+  if (line.trim() === "" && lineNo > 1) return;
+  processRecord(line);
+});
+
+rl.on("close", () => {
+  if (pending) processRecord(pending);
+  const out = {
+    _comment:
+      "UK Sanctions List (FCDO) — grouped designated targets for name screening. Source: official FCDO UK Sanctions List CSV, Crown copyright, Open Government Licence v3.0. Generated by scripts/build-data.mjs.",
+    version,
+    generatedAt: new Date().toISOString().slice(0, 10),
+    count: targets.size,
+    targets: [...targets.values()].map((t) => ({
+      id: t.id,
+      type: t.type,
+      primaryName: t.primaryName || t.names[0] || "",
+      names: t.names,
+      regimes: [...t.regimes],
+      sanctions: t.sanctions,
+      dob: [...t.dob],
+      nationality: [...t.nationality],
+      dateDesignated: t.dateDesignated,
+      lastUpdated: t.lastUpdated,
+      reasons: t.reasons,
+    })),
+  };
+  writeFileSync(outPath, JSON.stringify(out));
+  console.error(`wrote ${outPath} — ${targets.size} targets (report date ${version}).`);
+});
