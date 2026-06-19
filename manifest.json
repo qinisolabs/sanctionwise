@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "sanctionwise",
+  "display_name": "sanctionwise — UK sanctions screening",
+  "version": "0.1.1",
+  "description": "Screen names against the official FCDO UK Sanctions List for AI agents — indicative, not advice.",
+  "long_description": "Screen a person, company or vessel name against the official FCDO UK Sanctions List to surface possible matches with the official designation details, and fetch a full entry by Unique ID. INDICATIVE name-match only — a match must be verified by a human against the official entry, and a non-match is not a clearance. Covers the UK FCDO list only; not legal, compliance or KYC/AML advice. Official data is bundled (works offline) and the tool auto-refreshes from a weekly release.",
+  "author": {
+    "name": "Qiniso",
+    "url": "https://github.com/qinisolabs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qinisolabs/sanctionwise"
+  },
+  "homepage": "https://qinisolabs.github.io/sanctionwise",
+  "documentation": "https://qinisolabs.github.io/sanctionwise",
+  "support": "https://github.com/qinisolabs/sanctionwise/issues",
+  "license": "Apache-2.0",
+  "keywords": ["sanctions", "screening", "aml", "kyc", "uk-sanctions", "compliance"],
+  "server": {
+    "type": "node",
+    "entry_point": "server/server.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/server.js"],
+      "env": {}
+    }
+  },
+  "tools": [
+    { "name": "screen_name", "description": "Screen a person/company/vessel name against the UK Sanctions List." },
+    { "name": "get_sanctions_entry", "description": "Fetch the full UK Sanctions List entry for a Unique ID." }
+  ],
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": { "node": ">=18.0.0" }
+  }
+}

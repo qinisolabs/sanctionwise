@@ -6,3 +6,5 @@ dist/
 src/data.generated.ts
 data/sanctions.json
 UK-Sanctions-List.csv
+dist-mcpb/
+mcpb-build/
