@@ -17,6 +17,7 @@
   "documentation": "https://qinisolabs.github.io/sanctionwise",
   "support": "https://github.com/qinisolabs/sanctionwise/issues",
   "license": "Apache-2.0",
+  "privacy_policies": ["https://qinisolabs.github.io/privacy.html"],
   "keywords": ["sanctions", "screening", "aml", "kyc", "uk-sanctions", "compliance"],
   "server": {
     "type": "node",

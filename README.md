@@ -69,6 +69,10 @@ The data is the official **FCDO UK Sanctions List** (designated persons, entitie
 - **Not real-time.** Reflects the dataset's report date; check the [live list](https://www.gov.uk/government/publications/the-uk-sanctions-list) for the current position.
 - **Not advice**, and not a regulated screening service.
 
+## Privacy
+
+This tool runs locally on your machine and is built not to collect, store, or transmit your data — no analytics, no telemetry, no account. Screening runs locally; on startup it may **download** the latest public UK Sanctions List from a GitHub Release, but the names you screen are never transmitted. Full policy: <https://qinisolabs.github.io/privacy.html>.
+
 ## License
 
 Apache-2.0 (code). Sanctions data © Crown copyright, FCDO, Open Government Licence v3.0; see `NOTICE`.
