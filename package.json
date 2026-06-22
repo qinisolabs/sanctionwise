@@ -1,6 +1,6 @@
 {
   "name": "sanctionwise",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "mcpName": "io.github.qinisolabs/sanctionwise",
   "description": "Verified UK sanctions screening for AI agents — official FCDO UK Sanctions List, not guesses.",
   "license": "Apache-2.0",
